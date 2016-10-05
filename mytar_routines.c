@@ -229,5 +229,45 @@ int createTar(int nFiles, char *fileNames[], char tarName[])
 int extractTar(char tarName[])
 {
 	// Complete the function
-	return EXIT_FAILURE;
+	int i;
+	FILE *tarFile, *outputFile;
+	stHeaderEntry *header;
+	int *nFiles;
+
+	tarFile = fopen(tarName, "r");//abrimos el archivo tar
+	fread(nFiles, sizeof(int), 1, tarFile);//leemos el numero de archivos comprimidos
+
+	header = readHeader(tarFile, nFiles);
+
+
+	for (i = 0; i < *nFiles; i++){
+		unsigned int size = 0;
+		outputFile = fopen(header[i].name, "w");
+
+		while (size < header[i].size){
+			char *text = loadstr(outputFile);
+			size += strlen(text);
+			fwrite(text, strlen(text), 1, outputFile);
+			free(text);
+		}
+		fclose(tarName);
+		if (size > header[i].size){
+			freeMemory(header, *nFiles);
+			return EXIT_FAILURE;
+		}
+	}
+
+	freeMemory(header, nFiles);
+
+	return EXIT_SUCCESS;
 }
+
+void freeMemory(stHeaderEntry *header, int nFiles){
+	int i;
+
+	for (i = 0; i < nFiles; i++)
+		free(header[i].name);
+
+	free(header);
+}
+
