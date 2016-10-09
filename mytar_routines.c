@@ -237,7 +237,12 @@ int extractTar(char tarName[])
 	stHeaderEntry *header;
 	int *nFiles = malloc(sizeof(int));
 
-	tarFile = fopen(tarName, "r");//abrimos el archivo tar
+	if ((tarFile = fopen(tarName, "r")) == NULL){//abrimos el archivo tar
+		fprintf(stderr, "The mtar file %s could not be opened: ",
+		tarName);
+		perror(NULL);
+		return (EXIT_FAILURE);
+	}
 
 	header = readHeader(tarFile, nFiles);//leemos la cabecera
 
